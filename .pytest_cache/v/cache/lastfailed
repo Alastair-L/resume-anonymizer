@@ -1,0 +1,7 @@
+{
+  "test_anonymize.py::test_answer": true, 
+  "test_anonymize.py::test_apply_rules": true, 
+  "test_anonymize.py::test_load_resume": true, 
+  "test_anonymize.py::test_load_rules": true, 
+  "test_anonymize.py::test_write_resume": true
+}

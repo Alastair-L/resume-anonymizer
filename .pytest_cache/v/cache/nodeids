@@ -1,0 +1,7 @@
+[
+  "test_anonymize.py::test_answer", 
+  "test_anonymize.py::test_load_resume", 
+  "test_anonymize.py::test_load_rules", 
+  "test_anonymize.py::test_apply_rules", 
+  "test_anonymize.py::test_write_resume"
+]
