@@ -1,7 +1,6 @@
-import json
+#!/usr/bin/env python3
 
-def load_resume(x):
-    return False
+import json
 
 def load_rules(rule_file):
     with open(rule_file) as data_file:
@@ -16,7 +15,7 @@ def apply_rules(rules, resume_file):
     anonymized_resume = open('anonymized_' + resume_file, 'w+')
 
     for line in identifiable_resume:
-        anonymized_line = line;
+        anonymized_line = line
         for rule in rules:
             for identifier, anonymizer in rule.items():
                 anonymized_line = anonymized_line.replace(identifier, anonymizer)
@@ -31,4 +30,4 @@ def main():
     rules = load_rules("rules.json")
     apply_rules(rules, "resume.tex")
 
-main()
+if __name__ == '__main__' : main()

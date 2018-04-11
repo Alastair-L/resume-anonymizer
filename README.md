@@ -4,7 +4,7 @@ Given an example resume in a `.tex` format, it will spit out an equivalent, anon
 
 ## usage
 
-``` python3 anonymizer.py ```
+``` python anonymizer.py ```
 
 ## testing
 
