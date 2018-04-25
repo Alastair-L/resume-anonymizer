@@ -2,6 +2,7 @@
 
 import sys
 import json
+import argparse
 
 def load_rules(rule_file):
     with open(rule_file) as data_file:
@@ -9,6 +10,8 @@ def load_rules(rule_file):
             data = json.load(data_file)
             return data
         except json.JSONDecodeError:
+            return None
+        except IOError:
             return None
 
 def anonymized_file(resume_file):
@@ -46,15 +49,18 @@ def verify_args(args):
     return True
 
 def main():
-    if len(sys.argv) < 2:
-        print("usage: " + sys.argv[0] + " file1.tex file2.tex ...")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-r", '--rulesfile', help='the JSON rulesfile to import', default='rules.json')
+    parser.add_argument('-i','--input', nargs='+', help='the names of the resumes to anonymize', dest='inputs', required=True)
+    args = parser.parse_args()
 
-    filenames = sys.argv[1:]
+    filenames = args.inputs
     if verify_args(filenames) is not True:
         print("one of the arguments is not a valid file")
 
-    rules = load_rules("rules.json")
+    rules = load_rules(args.rulesfile)
     if rules is not None:
+        print("loaded rules:\n" + json.dumps(rules, indent=4, sort_keys=True))
         for filename in filenames:
             status = apply_rules(rules, filename)
             if status is True:
@@ -62,6 +68,6 @@ def main():
             else:
                 print("some problem occurred while trying to produce " + anonymized_file(filename))
     else:
-        print("I could not parse the rules data; is it valid JSON?")
+        print("I could not parse the rules data; is it a real, openable file containing valid JSON?")
 
 if __name__ == '__main__' : main()
