@@ -1,23 +1,33 @@
 #!/usr/bin/env python3
 
 import sys
+import os
 import json
 import argparse
 
 def load_rules(rule_file):
-    with open(rule_file) as data_file:
-        try:
-            data = json.load(data_file)
-            return data
-        except json.JSONDecodeError:
-            return None
-        except IOError:
-            return None
+    try:
+        with open(rule_file) as data_file:
+            try:
+                data = json.load(data_file)
+                return data
+            except json.JSONDecodeError:
+                return None
+            except IOError:
+                return None
+    except FileNotFoundError:
+        return None
 
 def anonymized_file(resume_file):
-    return 'anonymized_' + resume_file
+    original_dir = os.path.dirname(resume_file)
+    original_base = os.path.basename(resume_file)
+    anonymized_base = 'anonymized_' + original_base
+
+    return os.path.join(original_dir, anonymized_base)
 
 def apply_rules(rules, resume_file):
+    identifiable_resume = None
+    anonymized_resume = None
     try:
         identifiable_resume = open(resume_file, 'r')
         anonymized_resume = open(anonymized_file(resume_file), 'w+')
@@ -29,12 +39,15 @@ def apply_rules(rules, resume_file):
                     anonymized_line = anonymized_line.replace(identifier, anonymizer)
             anonymized_resume.write(anonymized_line)
 
-    except OSError:
+    except OSError as ose:
+        print(ose)
         return False
 
     finally:
-        identifiable_resume.close()
-        anonymized_resume.close()
+        if identifiable_resume is not None: # would be better to check if it had this method
+            identifiable_resume.close()
+        if anonymized_resume is not None:
+            anonymized_resume.close()
 
     return True
 
