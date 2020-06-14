@@ -10,18 +10,16 @@ EXCEL_FILE_NAME = 'names_list.xlsx'
 PATH_TO_RESUMES = './Input Resumes'
 
 
-def create_rules(rule_file):
-    try:
-        with open(rule_file) as data_file:
-            try:
-                data = json.load(data_file)
-                return data
-            except json.JSONDecodeError:
-                return None
-            except IOError:
-                return None
-    except FileNotFoundError:
-        return None
+def create_rules():
+    names = get_names_to_replace()
+    rules = {
+        'He': 'They',
+        'She': 'They',
+    }
+    for fullname in names:
+        for name in fullname.split(' '):
+            rules[name] = "$PersonName"
+    return rules
 
 def anonymized_file(resume_file):
     original_dir = os.path.dirname(resume_file)
@@ -66,10 +64,8 @@ def get_names_to_replace():
 
 def main():
     filenames = os.listdir(PATH_TO_RESUMES)
-    names = get_names_to_replace()
-    print("loaded names:", filenames)
-
     rules = create_rules()
+    print(rules)
 
     for filename in filenames:
         status = create_anonymized_file(rules, filename)
