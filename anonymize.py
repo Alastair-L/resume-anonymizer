@@ -7,7 +7,8 @@ import xlrd
 import argparse
 
 EXCEL_FILE_NAME = 'names_list.xlsx'
-PATH_TO_RESUMES = './Input Resumes'
+PATH_TO_RESUMES = './Input resumes'
+PATH_TO_ANONYMIZED_RESUMES = './Anonymized resumes'
 
 
 def create_rules():
@@ -21,30 +22,21 @@ def create_rules():
             rules[name] = "$PersonName"
     return rules
 
-def anonymized_file(resume_file):
-    original_dir = os.path.dirname(resume_file)
-    original_base = os.path.basename(resume_file)
-    anonymized_base = 'anonymized_' + original_base
-
-    return os.path.join(original_dir, anonymized_base)
 
 def create_anonymized_file(rules, resume_file):
     identifiable_resume = None
     anonymized_resume = None
     try:
-        identifiable_resume = open(resume_file, 'r')
-        anonymized_resume = open(anonymized_file(resume_file), 'w+')
+        identifiable_resume = open(f"{PATH_TO_RESUMES}/{resume_file}", 'r')
+        print(identifiable_resume)
+        anonymized_resume = open(f"{PATH_TO_ANONYMIZED_RESUMES}/anonymized2_{resume_file}", 'w+')
 
         for line in identifiable_resume:
+            print(line)
             anonymized_line = line
-            for rule in rules:
-                for identifier, anonymizer in rule.items():
-                    anonymized_line = anonymized_line.replace(identifier, anonymizer)
+            for identifier, anonymizer in rules.items():
+                anonymized_line = anonymized_line.replace(identifier, anonymizer)
             anonymized_resume.write(anonymized_line)
-
-    except OSError as ose:
-        print(ose)
-        return False
 
     finally:
         if identifiable_resume is not None: # would be better to check if it had this method
