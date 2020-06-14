@@ -3,9 +3,14 @@
 import sys
 import os
 import json
+import xlrd 
 import argparse
 
-def load_rules(rule_file):
+EXCEL_FILE_NAME = 'names_list.xlsx'
+PATH_TO_RESUMES = './Input Resumes'
+
+
+def create_rules(rule_file):
     try:
         with open(rule_file) as data_file:
             try:
@@ -25,7 +30,7 @@ def anonymized_file(resume_file):
 
     return os.path.join(original_dir, anonymized_base)
 
-def apply_rules(rules, resume_file):
+def create_anonymized_file(rules, resume_file):
     identifiable_resume = None
     anonymized_resume = None
     try:
@@ -51,36 +56,26 @@ def apply_rules(rules, resume_file):
 
     return True
 
-def verify_args(args):
-    for arg in args:
-        try:
-            f = open(arg, 'r')
-            f.close()
-        except OSError:
-            return False
-
-    return True
+def get_names_to_replace():
+    with xlrd.open_workbook(EXCEL_FILE_NAME) as data_file:
+        sheet = data_file.sheet_by_index(0)
+        names = [sheet.cell_value(index, 0) for index in range(sheet.nrows)]
+    if len(names) == 0: print('Names not found, still applying other rules')
+    return names
+        
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-r", '--rulesfile', help='the JSON rulesfile to import', default='rules.json')
-    parser.add_argument('-i','--input', nargs='+', help='the names of the resumes to anonymize', dest='inputs', required=True)
-    args = parser.parse_args()
+    filenames = os.listdir(PATH_TO_RESUMES)
+    names = get_names_to_replace()
+    print("loaded names:", filenames)
 
-    filenames = args.inputs
-    if verify_args(filenames) is not True:
-        print("one of the arguments is not a valid file")
+    rules = create_rules()
 
-    rules = load_rules(args.rulesfile)
-    if rules is not None:
-        print("loaded rules:\n" + json.dumps(rules, indent=4, sort_keys=True))
-        for filename in filenames:
-            status = apply_rules(rules, filename)
-            if status is True:
-                print("rules applied; result written to " + anonymized_file(filename))
-            else:
-                print("some problem occurred while trying to produce " + anonymized_file(filename))
-    else:
-        print("I could not parse the rules data; is it a real, openable file containing valid JSON?")
+    for filename in filenames:
+        status = create_anonymized_file(rules, filename)
+        if status is True:
+            print("rules applied; result written to " + anonymized_file(filename))
+        else:
+            print("some problem occurred while trying to produce " + anonymized_file(filename))
 
 if __name__ == '__main__' : main()
